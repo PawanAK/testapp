@@ -23,6 +23,8 @@ function App() {
     let msgs = chats;
     msgs.push({ role: "user", content: message });
     setChats(msgs);
+
+    scrollTo(0, 1e10);
     setMessage("");
 
     await openai
@@ -31,7 +33,7 @@ function App() {
         messages: [
           {
             role: "system",
-            content: "You are a RizzGPT. You help with busness plan writting",
+            content: "You are a PlanGPT. You help with busness plan writting",
           },
           ...chats,
         ],
@@ -40,6 +42,7 @@ function App() {
         msgs.push(result.data.choices[0].message);
         setChats(msgs);
         setIsTyping(false);
+        scrollTo(0, 1e10);
       })
       .catch((error) => console.log(error));
   };
@@ -49,23 +52,22 @@ function App() {
       <h1>React ChatGPT App</h1>
 
       <section>
-        {
-          chats && chats.length?(
-            chats.map((chat)=>)
-          ):""
-        }
+        {chats && chats.length
+          ? chats.map((chat, index) => (
+              <p key={index} className={chat.role === "user" ? "user_msg" : ""}>
+                <span>{chat.role}</span>
+                <span>:</span>
+                <span>{chat.content}</span>
+              </p>
+            ))
+          : ""}
       </section>
 
-
-      {isTyping && (
-        <div>
-          <p>
-            <i>Typing</i>
-          </p>
-        </div>
-      )}
-
-      {errorMessage && <p>{errorMessage}</p>}
+      <div className={isTyping ? "" : "hide"}>
+        <p>
+          <i>Typing</i>
+        </p>
+      </div>
 
       <form onSubmit={(e) => chat(e, message)}>
         <input
@@ -76,15 +78,6 @@ function App() {
           onChange={(e) => setMessage(e.target.value)}
         />
       </form>
-
-      <div>
-        {chats.map((chat, index) => (
-          <div key={index}>
-            <p>{chat.role === "user" ? "User: " : "Assistant: "}</p>
-            <p>{chat.content}</p>
-          </div>
-        ))}
-      </div>
     </main>
   );
 }
