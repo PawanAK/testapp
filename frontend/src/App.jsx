@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
-
+import ChatWindow from "./components/ChatWindow";
+import Modal from "./components/Modal";
 import "./App.css";
 
-const configuration = new Configuration({
-  apiKey: "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",
-});
-
-const openai = new OpenAIApi(configuration);
-
-function App() {
+const App = () => {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [showModal, setShowModal] = useState(true);
 
-  const chat = async (e, message) => {
+  const configuration = new Configuration({
+    apiKey: apiKey,
+  });
+
+  const openai = new OpenAIApi(configuration);
+
+  const handleChatSubmit = async (e, message) => {
     e.preventDefault();
 
     setIsTyping(true);
@@ -24,62 +27,60 @@ function App() {
     msgs.push({ role: "user", content: message });
     setChats(msgs);
 
-    scrollTo(0, 1e10);
     setMessage("");
 
-    await openai
-      .createChatCompletion({
+    try {
+      const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
-            content: "You are a PlanGPT. You help with busness plan writting",
+            content: "You are a PlanGPT. You help with business plan writing",
           },
           ...chats,
         ],
-      })
-      .then((result) => {
-        msgs.push(result.data.choices[0].message);
+      });
+
+      const { choices } = response.data;
+
+      if (choices && choices.length > 0) {
+        msgs.push(choices[0].message);
         setChats(msgs);
-        setIsTyping(false);
-        scrollTo(0, 1e10);
-      })
-      .catch((error) => console.log(error));
+      }
+
+      setIsTyping(false);
+      window.scrollTo(0, document.body.scrollHeight);
+    } catch (error) {
+      console.log(error);
+      setErrorMessage("An error occurred. Please try again later.");
+      setIsTyping(false);
+    }
   };
 
   return (
-    <main>
-      <h1>React ChatGPT App</h1>
+    <main className="app-container">
+      <h1 className="app-title">React ChatGPT App</h1>
 
-      <section>
-        {chats && chats.length
-          ? chats.map((chat, index) => (
-              <p key={index} className={chat.role === "user" ? "user_msg" : ""}>
-                <span>{chat.role}</span>
-                <span>:</span>
-                <span>{chat.content}</span>
-              </p>
-            ))
-          : ""}
-      </section>
+      <Modal
+        apiKey={apiKey}
+        setApiKey={setApiKey}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
 
-      <div className={isTyping ? "" : "hide"}>
-        <p>
-          <i>Typing</i>
-        </p>
-      </div>
-
-      <form onSubmit={(e) => chat(e, message)}>
-        <input
-          type="text"
-          name="message"
-          value={message}
-          placeholder="Type a message"
-          onChange={(e) => setMessage(e.target.value)}
+      {!showModal && (
+        <ChatWindow
+          chats={chats}
+          isTyping={isTyping}
+          message={message}
+          setMessage={setMessage}
+          chat={handleChatSubmit}
         />
-      </form>
+      )}
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
     </main>
   );
-}
+};
 
 export default App;
