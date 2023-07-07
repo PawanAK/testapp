@@ -1,0 +1,32 @@
+/* ChatMessage.css */
+
+.chat-message {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-msg {
+  justify-content: flex-end;
+}
+
+.assistant-msg {
+  justify-content: flex-start;
+}
+
+.msg-content {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 1rem;
+  max-width: 70%;
+}
+
+.user-msg .msg-content {
+  background-color: #ffca80;
+}
+
+.assistant-msg .msg-content {
+  background-color: #ffffff;
+}

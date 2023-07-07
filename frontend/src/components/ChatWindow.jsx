@@ -1,34 +1,33 @@
 import React from "react";
-import "./ChatWindow.css";
+import "./chatwindow.css";
 
 const ChatWindow = ({ chats, isTyping, message, setMessage, chat }) => {
+  const handleCopy = (content) => {
+    navigator.clipboard.writeText(content);
+  };
+
   return (
     <section className="chat-window">
-      <div className="chats">
-        {chats && chats.length ? (
-          chats.map((chat, index) => (
-            <div
-              key={index}
-              className={`chat-message ${
-                chat.role === "user" ? "user-msg" : ""
-              }`}>
-              <span className="chat-role">{chat.role}:</span>
-              <span className="chat-separator">-</span>
-              <span className="chat-content">{chat.content}</span>
-            </div>
-          ))
-        ) : (
-          <p className="no-chat">No chats available</p>
-        )}
+      <div className="chat-messages">
+        {chats.map((chat, index) => (
+          <div
+            key={index}
+            className={`message ${chat.role}`}
+            onClick={() =>
+              chat.role === "assistant" && handleCopy(chat.content)
+            }>
+            <p>{chat.content}</p>
+          </div>
+        ))}
       </div>
 
       <div className={`typing-indicator ${isTyping ? "" : "hide"}`}>
-        <p>
-          <i>Typing</i>
-        </p>
+        <span className="dot" />
+        <span className="dot" />
+        <span className="dot" />
       </div>
 
-      <form onSubmit={(e) => chat(e, message)} className="message-form">
+      <form className="chat-input" onSubmit={(e) => chat(e, message)}>
         <input
           type="text"
           name="message"

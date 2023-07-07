@@ -1,4 +1,6 @@
-import { useState } from "react";
+// App.jsx
+
+import React, { useState } from "react";
 import { Configuration, OpenAIApi } from "openai";
 import ChatWindow from "./components/ChatWindow";
 import Modal from "./components/Modal";
@@ -57,16 +59,22 @@ const App = () => {
     }
   };
 
-  return (
-    <main className="app-container">
-      <h1 className="app-title">React ChatGPT App</h1>
+  const handleApiKeySubmit = () => {
+    setShowModal(false);
+  };
 
-      <Modal
-        apiKey={apiKey}
-        setApiKey={setApiKey}
-        showModal={showModal}
-        setShowModal={setShowModal}
-      />
+  return (
+    <main>
+      <h1>React ChatGPT App</h1>
+
+      {showModal && (
+        <Modal
+          apiKey={apiKey}
+          setApiKey={setApiKey}
+          showModal={showModal}
+          handleApiKeySubmit={handleApiKeySubmit}
+        />
+      )}
 
       {!showModal && (
         <ChatWindow
@@ -78,7 +86,7 @@ const App = () => {
         />
       )}
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      {errorMessage && <p>{errorMessage}</p>}
     </main>
   );
 };
